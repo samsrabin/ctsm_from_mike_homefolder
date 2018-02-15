@@ -301,10 +301,10 @@ contains
 
     call t_startf('SoilBiogeochem')
     if (use_century_decomp) then
-       call decomp_rate_constants_bgc(bounds, num_soilc, filter_soilc, &
+       call decomp_rate_constants_bgc(bounds,num_soilp, filter_soilp, num_soilc, filter_soilc, &
             canopystate_inst, soilstate_inst, temperature_inst, ch4_inst, soilbiogeochem_carbonflux_inst)
     else
-       call decomp_rate_constants_cn(bounds, num_soilc, filter_soilc, &
+       call decomp_rate_constants_cn(bounds, num_soilp, filter_soilp, num_soilc, filter_soilc, &
             canopystate_inst, soilstate_inst, temperature_inst, ch4_inst, soilbiogeochem_carbonflux_inst)
     end if
 
