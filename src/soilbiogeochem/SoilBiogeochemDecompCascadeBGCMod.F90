@@ -49,7 +49,15 @@ module SoilBiogeochemDecompCascadeBGCMod
   public :: get_cultivation_effective_multiplier ! Get the effective multiplier for cultivation
   !
   ! !PRIVATE DATA MEMBERS 
-  !
+
+  integer, private            :: i_soil1   = -9         ! Soil Organic Matter (SOM) first pool
+  integer, private            :: i_soil2   = -9         ! SOM second pool
+  integer, private            :: i_soil3   = -9         ! SOM third pool
+  integer, private, parameter :: nsompools = 3          ! Number of SOM pools
+  integer, private, parameter :: i_litr1   = i_met_lit  ! First litter pool, metobolic
+  integer, private, parameter :: i_litr2   = i_cel_lit  ! Second litter pool, cellulose
+  integer, private, parameter :: i_litr3   = i_lig_lit  ! Third litter pool, lignin
+
   type, private :: params_type
      real(r8):: cn_s1_bgc     !C:N for SOM 1
      real(r8):: cn_s2_bgc     !C:N for SOM 2
@@ -80,7 +88,6 @@ module SoilBiogeochemDecompCascadeBGCMod
      real(r8) :: minpsi_bgc   !minimum soil water potential for heterotrophic resp
      real(r8) :: maxpsi_bgc   !maximum soil water potential for heterotrophic resp
 
-     integer, private, parameter :: nsompools = 3 
      real(r8) :: initial_Cstocks(nsompools) ! Initial Carbon stocks for a cold-start
      real(r8) :: initial_Cstocks_depth      ! Soil depth for initial Carbon stocks for a cold-start
      
@@ -94,16 +101,7 @@ module SoilBiogeochemDecompCascadeBGCMod
   logical :: cultivate = .false. ! If crop is on -- should soil be cultivated? !!!!!!!!!!!!!! added for cultivation code
   real(r8), allocatable :: developed(:) ! If grid cell is developed or not !!!!!!!!!!!!!! added for cultivation code
 
-  ! !PRIVATE DATA MEMBERS 
-
-  integer, private            :: i_soil1   = -9         ! Soil Organic Matter (SOM) first pool
-  integer, private            :: i_soil2   = -9         ! SOM second pool
-  integer, private            :: i_soil3   = -9         ! SOM third pool
-  integer, private, parameter :: i_litr1   = i_met_lit  ! First litter pool, metobolic
-  integer, private, parameter :: i_litr2   = i_cel_lit  ! Second litter pool, cellulose
-  integer, private, parameter :: i_litr3   = i_lig_lit  ! Third litter pool, lignin
- 
- !-----------------------------------------------------------------------
+  !-----------------------------------------------------------------------
 
 contains
 
@@ -172,7 +170,7 @@ contains
 
   end subroutine DecompCascadeBGCreadNML
 
- !-----------------------------------------------------------------------
+  !-----------------------------------------------------------------------
   subroutine readParams ( ncid )
     !
     ! !DESCRIPTION:
@@ -719,7 +717,7 @@ contains
   end subroutine set_cultivation_levels
 
   !-----------------------------------------------------------------------
-  subroutine decomp_rate_constants_bgc(bounds, num_soilc, filter_soilc, num_soilp, filter_soilp, &
+  subroutine decomp_rate_constants_bgc(bounds, num_soilc, filter_soilc, &
        canopystate_inst, soilstate_inst, temperature_inst, ch4_inst, soilbiogeochem_carbonflux_inst)
     !
     ! !DESCRIPTION:
@@ -736,7 +734,7 @@ contains
     integer                              , intent(in)    :: num_soilc       ! number of soil columns in filter
     integer                              , intent(in)    :: filter_soilc(:) ! filter for soil columns
     integer                              , intent(in)    :: num_soilp       ! number of soil pfts in filter !!!!!!!!!!!!!! added for cultivation code
-    integer                              , intent(in)    :: filter_soilp(:) ! filter for soil pfts !!!!!!!!!!!!!! added for cultivation code
+    integer                              , intent(in)    :: filter_soilp(:) ! filter for soil pfts !!!!!!!!!!!!!! added for cultivation cod
     type(canopystate_type)               , intent(in)    :: canopystate_inst
     type(soilstate_type)                 , intent(in)    :: soilstate_inst
     type(temperature_type)               , intent(in)    :: temperature_inst
@@ -772,7 +770,7 @@ contains
     real(r8):: t1                           ! temperature argument
     real(r8):: normalization_factor         ! factor by which to offset the decomposition rates frm century to a q10 formulation
     real(r8):: days_per_year                ! days per year
-    real(r8):: clteff_scalar(bounds%begc:bounds%endc,ndecomp_pools)  ! plowing modifies decomp_k !!!!!!!!!!!!!!!!added for cultivation
+    real(r8):: clteff_scalar(bounds%begc:bounds%endc,ndecomp_pools)  ! plowing modifies decomp_k !!!!!!!!!!!!!! added for cultivation code
     real(r8):: depth_scalar(bounds%begc:bounds%endc,1:nlevdecomp) 
     real(r8):: mino2lim                     !minimum anaerobic decomposition rate
     real(r8):: spinup_geogterm_l1(bounds%begc:bounds%endc) ! geographically-varying spinup term for l1
@@ -1162,23 +1160,6 @@ contains
                                        * spinup_geogterm_s3(c)
             end do
          end do
-	 if ( cultivate )then  !!!!!!!!!!!!!! added for cultivation code
-             ! -----------------------------------------------------
-             ! adding effect of cultivation (e.g., plowing)
-             !        on soil C decomposition
-             ! -----------------------------------------------------
-             call get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar )
-             do j = 1,nlevdecomp
-                do fc = 1,num_soilc
-                   c = filter_soilc(fc)
-                   decomp_k(c,j,i_litr2) = decomp_k(c,j,i_litr2) * clteff_scalar(c,i_litr2)
-                   decomp_k(c,j,i_litr3) = decomp_k(c,j,i_litr3) * clteff_scalar(c,i_litr3)
-                   decomp_k(c,j,i_soil1) = decomp_k(c,j,i_soil1) * clteff_scalar(c,i_soil1)
-                   decomp_k(c,j,i_soil2) = decomp_k(c,j,i_soil2) * clteff_scalar(c,i_soil2)
-                   decomp_k(c,j,i_soil3) = decomp_k(c,j,i_soil3) * clteff_scalar(c,i_soil3)
-                end do
-             end do
-         end if
       else
          do j = 1,nlevdecomp
             do fc = 1,num_soilc
@@ -1218,7 +1199,7 @@ contains
 
  end subroutine decomp_rate_constants_bgc
 
- !-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
   subroutine get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar )
     ! !DESCRIPTION:
     !
@@ -1292,7 +1273,7 @@ contains
           else if (day >= 165 .and. day < 195) then ! June 14
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) == ntmp_corn      .or. &
-                 patch%itype(p) == nirrig_tmp_corn  .or. &
+                 patch%itype(p) == nirrig_tmp_corn .or. &
                  patch%itype(p) == ntmp_soybean   .or. &
                  patch%itype(p) == nirrig_tmp_soybean      ) then
                 clteff_scalar(c,i_litr2) = 3.41_r8
@@ -1353,6 +1334,7 @@ contains
        end if
     enddo
   end subroutine get_cultivation_effective_multiplier
+
   !-----------------------------------------------------------------------
 
 end module SoilBiogeochemDecompCascadeBGCMod
