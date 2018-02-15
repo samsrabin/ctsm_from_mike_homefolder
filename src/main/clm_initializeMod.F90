@@ -262,11 +262,11 @@ contains
     use shr_scam_mod          , only : shr_scam_getCloseLatLon
     use seq_drydep_mod        , only : n_drydep, drydep_method, DD_XLND
     use accumulMod            , only : print_accum_fields 
-    use clm_varpar            , only : nlevsno
+    use clm_varpar            , only : nlevsno, crop_prog !!!!!!!!!!!!!!!!! added for cultivation code
     use clm_varcon            , only : spval
     use clm_varctl            , only : finidat, finidat_interp_source, finidat_interp_dest, fsurdat
     use clm_varctl            , only : use_century_decomp, single_column, scmlat, scmlon, use_cn, use_fates
-    use clm_varctl            , only : use_crop, ndep_from_cpl
+    use clm_varctl            , only : use_crop, ndep_from_cpl, use_vertsoilc  !!!!!!!!!!!!!!!!! added for cultivation code
     use clm_varorb            , only : eccen, mvelpp, lambm0, obliqr
     use clm_time_manager      , only : get_step_size, get_curr_calday
     use clm_time_manager      , only : get_curr_date, get_nstep, advance_timestep 
@@ -571,6 +571,21 @@ contains
           call ndep_interp(bounds_proc, atm2lnd_inst)
        end if
        call t_stopf('init_ndep')
+    end if
+
+    ! ------------------------------------------------------------------------
+    ! Crop and cultivation
+    ! ------------------------------------------------------------------------
+    if ( use_cn .and. use_century_decomp .and. use_crop .and. use_vertsoilc)then
+       call init_cultivation( bounds_proc )
+       !$OMP PARALLEL DO PRIVATE (nc, bounds_clump)
+       do nc = 1, nclumps
+          call get_clump_bounds(nc, bounds_clump)
+          call set_cultivation_levels( bounds_clump, filter(nc)%num_soilp, &
+                                       filter(nc)%soilp,                   &
+                                       cnveg_state_inst%gdp_lf_col(bounds_clump%begc:bounds_clump%endc) )
+       end do
+       !$OMP END PARALLEL DO
     end if
 
     ! ------------------------------------------------------------------------
