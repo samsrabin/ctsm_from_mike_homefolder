@@ -717,9 +717,10 @@ contains
   end subroutine set_cultivation_levels
 
   !-----------------------------------------------------------------------
-  subroutine decomp_rate_constants_bgc(bounds,num_soilp, filter_soilp, num_soilc, filter_soilc, &
-       canopystate_inst, soilstate_inst, temperature_inst, ch4_inst, soilbiogeochem_carbonflux_inst)!!!!!added num_soilp, filter_soilp for cultivation code
+  subroutine decomp_rate_constants_bgc(bounds, num_soilc, filter_soilc, num_soilp, filter_soilp, &
+       canopystate_inst, soilstate_inst, temperature_inst, ch4_inst, soilbiogeochem_carbonflux_inst) 
     !
+    ! added num_soilp, filter_soilp for cultivation!!!!!!!!!!!!!!!!
     ! !DESCRIPTION:
     !  calculate rate constants and decomposition pathways for the CENTURY decomposition cascade model
     !  written by C. Koven based on original CLM4 decomposition cascade
