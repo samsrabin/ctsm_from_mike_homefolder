@@ -289,6 +289,7 @@ contains
     use NutrientCompetitionFactoryMod, only : create_nutrient_competition_method
     use controlMod            , only : NLFilename
     use clm_instMod           , only : clm_fates
+    use CNVegStateType        , only : cnveg_state_type
     !
     ! !ARGUMENTS    
     !
@@ -313,6 +314,7 @@ contains
     real(r8)              :: eccf         ! earth orbit eccentricity factor
     type(bounds_type)     :: bounds_proc  ! processor bounds
     type(bounds_type)     :: bounds_clump ! clump bounds
+    type(cnveg_state_type):: cnveg_state_inst !ADDED FOR CULT CODE
     logical               :: lexist
     integer               :: closelatidx,closelonidx
     real(r8)              :: closelat,closelon
