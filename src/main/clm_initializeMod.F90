@@ -290,6 +290,7 @@ contains
     use controlMod            , only : NLFilename
     use clm_instMod           , only : clm_fates
     use CNVegStateType        , only : cnveg_state_type
+    use SoilBiogeochemDecompCascadeBGCMod, only: init_cultivation, set_cultivation_levels
     !
     ! !ARGUMENTS    
     !
