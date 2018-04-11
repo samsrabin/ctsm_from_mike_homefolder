@@ -1,0 +1,13 @@
+&modelio
+  diri = "/glade/scratch/mwgraham/ctsm_tillage_branch_cult_false_test_041118a/bld/esp"
+  diro = "/glade/scratch/mwgraham/ctsm_tillage_branch_cult_false_test_041118a/run"
+  logfile = "esp.log.180411-115527"
+/
+&pio_inparm
+  pio_netcdf_format = ""
+  pio_numiotasks = -99
+  pio_rearranger = -99
+  pio_root = -99
+  pio_stride = -99
+  pio_typename = "nothing"
+/

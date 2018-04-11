@@ -1,0 +1,22 @@
+Setting resource.RLIMIT_STACK to -1 from (-1, -1)
+Creating component namelists
+   Calling /glade/u/home/mwgraham/ctsm_2/cime/src/components/data_comps/datm/cime_config/buildnml
+   Calling /glade/u/home/mwgraham/ctsm_2/cime_config/buildnml
+   Calling /glade/u/home/mwgraham/ctsm_2/cime/src/components/stub_comps/sice/cime_config/buildnml
+   Calling /glade/u/home/mwgraham/ctsm_2/cime/src/components/stub_comps/socn/cime_config/buildnml
+   Calling /glade/u/home/mwgraham/ctsm_2/components/mosart//cime_config/buildnml
+   Running /glade/u/home/mwgraham/ctsm_2/components/cism//cime_config/buildnml 
+
+   Calling /glade/u/home/mwgraham/ctsm_2/cime/src/components/stub_comps/swav/cime_config/buildnml
+   Calling /glade/u/home/mwgraham/ctsm_2/cime/src/components/stub_comps/sesp/cime_config/buildnml
+   Calling /glade/u/home/mwgraham/ctsm_2/cime/src/drivers/mct/cime_config/buildnml
+Finished creating component namelists
+-------------------------------------------------------------------------
+ - Prestage required restarts into /glade/scratch/mwgraham/ctsm_tillage_branch_cult_false_test_041118a/run
+ - Case input data directory (DIN_LOC_ROOT) is /glade/p/cesmdata/cseg/inputdata 
+ - Checking for required input datasets in DIN_LOC_ROOT
+-------------------------------------------------------------------------
+2018-04-11 11:55:33 MODEL EXECUTION BEGINS HERE
+run command is mpiexec_mpt  -np 612 -p "%g:"  omplace -tm open64  /glade/scratch/mwgraham/ctsm_tillage_branch_cult_false_test_041118a/bld/cesm.exe  >> cesm.log.$LID 2>&1  
+ERROR: RUN FAIL: Command 'mpiexec_mpt  -np 612 -p "%g:"  omplace -tm open64  /glade/scratch/mwgraham/ctsm_tillage_branch_cult_false_test_041118a/bld/cesm.exe  >> cesm.log.$LID 2>&1 ' failed
+See log file for details: /glade/scratch/mwgraham/ctsm_tillage_branch_cult_false_test_041118a/run/cesm.log.180411-115527
