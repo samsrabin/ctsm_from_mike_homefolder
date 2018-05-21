@@ -697,12 +697,12 @@ contains
        p = filter_soilp(fp)
        c = patch%column(p)
        g = patch%gridcell(p)
- 
-!MWG       if (gdp(c) > thresh_gdp )then
+
+!if (gdp(c) > thresh_gdp )then
+!        developed(g) = 1.0_r8
+!      else
 !         developed(g) = 1.0_r8
-!       else
-!          developed(g) = 0.0_r8
-!       end if
+!      end if
 
         developed(g) = 1.0_r8
        write(iulog,*) 'FOOOO',developed(g),g
@@ -1164,6 +1164,23 @@ contains
                                        * spinup_geogterm_s3(c)
             end do
          end do
+         if ( cultivate )then
+             ! -----------------------------------------------------
+             ! adding effect of cultivation (e.g., plowing)
+             !        on soil C decomposition
+             ! -----------------------------------------------------
+             call get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar )
+             do j = 1,nlevdecomp
+                do fc = 1,num_soilc
+                   c = filter_soilc(fc)
+                   decomp_k(c,j,i_litr2) = decomp_k(c,j,i_litr2) * clteff_scalar(c,i_litr2)
+                   decomp_k(c,j,i_litr3) = decomp_k(c,j,i_litr3) * clteff_scalar(c,i_litr3) 
+                   decomp_k(c,j,i_soil1) = decomp_k(c,j,i_soil1) * clteff_scalar(c,i_soil1)
+                   decomp_k(c,j,i_soil2) = decomp_k(c,j,i_soil2) * clteff_scalar(c,i_soil2)
+                   decomp_k(c,j,i_soil3) = decomp_k(c,j,i_soil3) * clteff_scalar(c,i_soil3)
+                end do
+             end do
+         end if
       else
          do j = 1,nlevdecomp
             do fc = 1,num_soilc
