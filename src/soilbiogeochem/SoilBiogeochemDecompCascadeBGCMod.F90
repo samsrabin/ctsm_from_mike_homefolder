@@ -1178,7 +1178,7 @@ contains
                    decomp_k(c,j,i_soil1) = decomp_k(c,j,i_soil1) * clteff_scalar(c,i_soil1)
                    decomp_k(c,j,i_soil2) = decomp_k(c,j,i_soil2) * clteff_scalar(c,i_soil2)
                    decomp_k(c,j,i_soil3) = decomp_k(c,j,i_soil3) * clteff_scalar(c,i_soil3)
-                   write(iulog,*) 'fooooo2',decomp_k(c,j,i_soil3),i_soil3     
+                   !write(iulog,*) 'fooooo2',decomp_k(c,j,i_soil3),i_soil3     
                 end do
              end do
          end if
