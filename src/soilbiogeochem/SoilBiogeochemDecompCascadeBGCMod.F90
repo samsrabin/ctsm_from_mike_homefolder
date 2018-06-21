@@ -686,7 +686,7 @@ contains
     !
     ! !LOCAL VARIABLES:
     integer :: fp, p, c, g          ! Indices
-    real(r8), parameter :: thresh_gdp = 0.0_r8 ! Threshold of GDP for developed vs. non-developed countiry for cultivation
+    real(r8), parameter :: thresh_gdp = 1.0_r8 ! Threshold of GDP for developed vs. non-developed countiry for cultivation
 
     do fp = 1,num_soilp
        p = filter_soilp(fp)
@@ -699,8 +699,8 @@ contains
 !         developed(g) = 1.0_r8
 !      end if
 
-        developed(g) = 1.0_r8
-       write(iulog,*) 'FOOOO',developed(g),g
+        developed(g) = 0.0_r8
+!      write(iulog,*) 'FOOOO',developed(g),g
        ! -----------------------------------------------------
        ! 2) error check
        ! -----------------------------------------------------
