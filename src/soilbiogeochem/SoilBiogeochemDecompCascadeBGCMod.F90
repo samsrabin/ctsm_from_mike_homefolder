@@ -1136,6 +1136,7 @@ contains
             do fc = 1,num_soilc
                c = filter_soilc(fc)
                depth_scalar(c,j) = exp(-zsoi(j)/decomp_depth_efolding)
+               !write(iulog,*) 'fooooo3',zsoi !check zsoi depths - MWG
             end do
          end do
       end if
@@ -1165,7 +1166,7 @@ contains
              !        on soil C decomposition
              ! -----------------------------------------------------
              call get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar )
-             do j = 1,nlevdecomp
+             do j = 1,5 !changed from j= 1,nlevdecomp to j=1,5 so that it model only tills to the top 26-40 cm of the soil surface, rather than whole soil - MWGraham
                 do fc = 1,num_soilc
                    c = filter_soilc(fc)
                    decomp_k(c,j,i_litr2) = decomp_k(c,j,i_litr2) * clteff_scalar(c,i_litr2)
@@ -1173,7 +1174,7 @@ contains
                    decomp_k(c,j,i_soil1) = decomp_k(c,j,i_soil1) * clteff_scalar(c,i_soil1)
                    decomp_k(c,j,i_soil2) = decomp_k(c,j,i_soil2) * clteff_scalar(c,i_soil2)
                    decomp_k(c,j,i_soil3) = decomp_k(c,j,i_soil3) * clteff_scalar(c,i_soil3)
-                   !write(iulog,*) 'fooooo2',decomp_k(c,j,i_soil3),i_soil3     
+                   !write(iulog,*) 'fooooo2',decomp_k(c,j,i_soil1),j    
                 end do
              end do
          end if
