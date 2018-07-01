@@ -1165,7 +1165,7 @@ contains
              ! adding effect of cultivation (e.g., plowing)
              !        on soil C decomposition
              ! -----------------------------------------------------
-             call get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar )
+             call get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar, cnveg_state_inst)!adding cnveg_state_inst for phenology-based tillage by MW Graham
              do j = 1,5 !changed from j= 1,nlevdecomp to j=1,5 so that it model only tills to the top 26-40 cm of the soil surface, rather than whole soil - MWGraham
                 do fc = 1,num_soilc
                    c = filter_soilc(fc)
@@ -1218,7 +1218,7 @@ contains
  end subroutine decomp_rate_constants_bgc
 
 !-----------------------------------------------------------------------
-  subroutine get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar )
+  subroutine get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar, cnveg_state_inst)
     ! !DESCRIPTION:
     !
     !  Get the cultivation effective multiplier if prognostic crops are on and
@@ -1228,12 +1228,14 @@ contains
     use clm_time_manager, only : get_curr_calday
     use pftconMod       , only : npcropmin, ntmp_corn, nirrig_tmp_corn, ntmp_soybean, nirrig_tmp_soybean
     use PatchType       , only : patch
+    use CNVegstateType                  , only : cnveg_state_type
     ! !ARGUMENTS:
     implicit none
     type(bounds_type), intent(in) :: bounds  
     integer          , intent(in) :: num_soilp          ! number of soil pfts in filter
     integer          , intent(in) :: filter_soilp(:)    ! filter for soil pfts
     real(r8):: clteff_scalar(bounds%begc:bounds%endc,ndecomp_pools)  ! plowing modifies decomp_k
+    type(cnveg_state_type)         , intent(inout) :: cnveg_state_inst
     ! !REVISION HISTORY:
     !
     !
@@ -1244,6 +1246,11 @@ contains
     !EOP
     !-----------------------------------------------------------------------
 
+    associate(                                                                   & ! Three lines here added by MW Graham to create phenological based tillage operations using idop (date of planing)
+         idop              =>    cnveg_state_inst%idop_patch                     & ! Output: [integer  (:) ]  date of planting
+         )
+
+    !get info from externals
     day = get_curr_calday()
 
     do fp = 1,num_soilp
@@ -1308,9 +1315,9 @@ contains
           ! temp. cereals: P 30 d bef, C 15 d bef, D on day of planting
           ! corn, soy    : P           C           D           & HW-7 30 d aftr
 
-          if (day < 105) then
+          if (day >= idop(p)) then
              clteff_scalar(c,:) = 1._r8
-          else if (day >= 105 .and. day < 120) then ! April 15
+          else if (day >= idop(p) .and. day < idop(p)+15) then ! April 15 !changed to idop(p), idop(p)+ 15 by MW Graham
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
                 clteff_scalar(c,i_litr2) = 10.00_r8
@@ -1318,7 +1325,7 @@ contains
                 clteff_scalar(c,i_soil1) = 10.00_r8
                 clteff_scalar(c,i_soil2) = 10.00_r8
              end if
-          else if (day >= 120 .and. day < 135) then ! April 30
+          else if (day >= idop(p)+15 .and. day < idop(p)+30) then ! April 30 !changed to idop(p)+15, idop(p)+30 by MW Graham
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
                 clteff_scalar(c,i_litr2) = 2.69_r8
@@ -1326,7 +1333,7 @@ contains
                 clteff_scalar(c,i_soil1) = 2.69_r8
                 clteff_scalar(c,i_soil2) = 2.69_r8
              end if
-          else if (day >= 135 .and. day < 165) then ! May 15
+          else if (day >= idop(p)+30 .and. day < idop(p)+60) then ! May 15
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
                 clteff_scalar(c,i_litr2) = 3.41_r8
@@ -1334,7 +1341,7 @@ contains
                 clteff_scalar(c,i_soil1) = 3.41_r8
                 clteff_scalar(c,i_soil2) = 3.41_r8
              end if
-          else if (day >= 165 .and. day < 195) then ! June 14
+          else if (day >= idop(p)+60 .and. day < idop(p)+90) then ! June 14
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) == ntmp_corn      .or. &
                  patch%itype(p) == nirrig_tmp_corn .or. &
@@ -1346,7 +1353,7 @@ contains
                 clteff_scalar(c,i_soil2) = 1.10_r8
                 clteff_scalar(c,i_soil3) = 1.10_r8
              end if
-          else if (day >= 195) then ! July 14
+          else if (day >= idop(p)+90) then ! July 14
              clteff_scalar(c,:) = 1._r8
           end if
        end if

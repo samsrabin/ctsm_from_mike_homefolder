@@ -1919,6 +1919,7 @@ contains
                idpp = jday - idop(p)
             else
                idpp = int(dayspyr) + jday - idop(p)
+
             end if
 
             ! onset_counter initialized to zero when .not. croplive
