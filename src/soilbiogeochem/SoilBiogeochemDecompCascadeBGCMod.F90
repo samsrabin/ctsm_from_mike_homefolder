@@ -1225,7 +1225,7 @@ contains
     !  cultivation is turned on. Created by Sam Levis.
     !
     ! !USES:
-    use clm_time_manager, only : get_curr_calday
+    use clm_time_manager, only : get_curr_calday,get_days_per_year
     use pftconMod       , only : npcropmin, ntmp_corn, nirrig_tmp_corn, ntmp_soybean, nirrig_tmp_soybean
     use PatchType       , only : patch
     use CNVegstateType                  , only : cnveg_state_type
@@ -1243,6 +1243,7 @@ contains
     !
     integer :: fp, p, c, g          ! Indices
     integer :: day                  ! julian day
+    integer :: idpp                 ! days past planting MWG added
     !EOP
     !-----------------------------------------------------------------------
 
@@ -1252,12 +1253,22 @@ contains
 
     !get info from externals
     day = get_curr_calday()
+    dayspyr = get_days_per_year()               !Add by MWG for IDPP-based routine
 
     do fp = 1,num_soilp
        p = filter_soilp(fp)
        c = patch%column(p)
        g = patch%gridcell(p)
  
+       ! days past planting may determine harves/tillage (MW Graham added)
+
+         if (day >= idop(p)) then
+            idpp = day - idop(p)
+         else
+             idpp = int(dayspyr) + day - idop(p)
+
+         end if
+
        ! -----------------------------------------------------
        ! 3) assigning cultivation practices and mapping to the
        !    effect on soil C decomposition
@@ -1315,9 +1326,9 @@ contains
           ! temp. cereals: P 30 d bef, C 15 d bef, D on day of planting
           ! corn, soy    : P           C           D           & HW-7 30 d aftr
 
-          if (day >= idop(p)) then
+          if (day >= idpp) then
              clteff_scalar(c,:) = 1._r8
-          else if (day >= idop(p) .and. day < idop(p)+15) then ! April 15 !changed to idop(p), idop(p)+ 15 by MW Graham
+          else if (day >= idpp .and. day < idpp+15) then ! April 15 !changed to idop(p), idop(p)+ 15 by MW Graham
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
                 clteff_scalar(c,i_litr2) = 10.00_r8
@@ -1325,7 +1336,7 @@ contains
                 clteff_scalar(c,i_soil1) = 10.00_r8
                 clteff_scalar(c,i_soil2) = 10.00_r8
              end if
-          else if (day >= idop(p)+15 .and. day < idop(p)+30) then ! April 30 !changed to idop(p)+15, idop(p)+30 by MW Graham
+          else if (day >= idpp+15 .and. day < idpp+30) then ! April 30 !changed to idop(p)+15, idop(p)+30 by MW Graham
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
                 clteff_scalar(c,i_litr2) = 2.69_r8
@@ -1333,7 +1344,7 @@ contains
                 clteff_scalar(c,i_soil1) = 2.69_r8
                 clteff_scalar(c,i_soil2) = 2.69_r8
              end if
-          else if (day >= idop(p)+30 .and. day < idop(p)+60) then ! May 15
+          else if (day >= idpp+30 .and. day < idpp+60) then ! May 15
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
                 clteff_scalar(c,i_litr2) = 3.41_r8
@@ -1341,7 +1352,7 @@ contains
                 clteff_scalar(c,i_soil1) = 3.41_r8
                 clteff_scalar(c,i_soil2) = 3.41_r8
              end if
-          else if (day >= idop(p)+60 .and. day < idop(p)+90) then ! June 14
+          else if (day >= idpp+60 .and. day < idpp+90) then ! June 14
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) == ntmp_corn      .or. &
                  patch%itype(p) == nirrig_tmp_corn .or. &
@@ -1353,7 +1364,7 @@ contains
                 clteff_scalar(c,i_soil2) = 1.10_r8
                 clteff_scalar(c,i_soil3) = 1.10_r8
              end if
-          else if (day >= idop(p)+90) then ! July 14
+          else if (day >= idpp+90) then ! July 14
              clteff_scalar(c,:) = 1._r8
           end if
        end if
