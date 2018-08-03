@@ -98,7 +98,7 @@ module SoilBiogeochemDecompCascadeBGCMod
   character(len=*), parameter, private :: sourcefile = &
        __FILE__
 
-  logical :: cultivate = .false. ! If crop is on -- should soil be cultivated? !!!!!!!!!!!!!! added for cultivation code
+  logical :: cultivate = .true. ! If crop is on -- should soil be cultivated? !!!!!!!!!!!!!! added for cultivation code
   real(r8), allocatable :: developed(:) ! If grid cell is developed or not !!!!!!!!!!!!!! added for cultivation code
 
   !-----------------------------------------------------------------------
@@ -1313,10 +1313,10 @@ contains
           else if (day >= 105 .and. day < 120) then ! April 15
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
-                clteff_scalar(c,i_litr2) = 10.00_r8
-                clteff_scalar(c,i_litr3) = 10.00_r8
-                clteff_scalar(c,i_soil1) = 10.00_r8
-                clteff_scalar(c,i_soil2) = 10.00_r8
+                clteff_scalar(c,i_litr2) = 3.41_r8
+                clteff_scalar(c,i_litr3) = 3.41_r8
+                clteff_scalar(c,i_soil1) = 3.41_r8
+                clteff_scalar(c,i_soil2) = 3.41_r8
              end if
           else if (day >= 120 .and. day < 135) then ! April 30
              clteff_scalar(c,:) = 1._r8
