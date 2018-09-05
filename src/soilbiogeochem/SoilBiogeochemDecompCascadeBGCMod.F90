@@ -27,6 +27,7 @@ module SoilBiogeochemDecompCascadeBGCMod
   use ColumnType                         , only : col                
   use GridcellType                       , only : grc
   use SoilBiogeochemStateType            , only : get_spinup_latitude_term
+  use CNVegstateType                     , only : cnveg_state_type
 
   !
   implicit none
@@ -716,7 +717,7 @@ contains
 
   !-----------------------------------------------------------------------
   subroutine decomp_rate_constants_bgc(bounds, num_soilc, filter_soilc, num_soilp, filter_soilp, &
-       canopystate_inst, soilstate_inst, temperature_inst, ch4_inst, soilbiogeochem_carbonflux_inst) 
+       canopystate_inst, soilstate_inst, temperature_inst, ch4_inst, soilbiogeochem_carbonflux_inst,cnveg_state_inst) 
     !
     ! added num_soilp, filter_soilp for cultivation!!!!!!!!!!!!!!!!
     ! !DESCRIPTION:
@@ -739,6 +740,7 @@ contains
     type(temperature_type)               , intent(in)    :: temperature_inst
     type(ch4_type)                       , intent(in)    :: ch4_inst
     type(soilbiogeochem_carbonflux_type) , intent(inout) :: soilbiogeochem_carbonflux_inst
+    type(cnveg_state_type)               , intent(inout) :: cnveg_state_inst
     !
     ! !LOCAL VARIABLES:
     real(r8):: frw(bounds%begc:bounds%endc) ! rooting fraction weight
@@ -1165,7 +1167,7 @@ contains
              ! adding effect of cultivation (e.g., plowing)
              !        on soil C decomposition
              ! -----------------------------------------------------
-             call get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar, cnveg_state_inst)!adding cnveg_state_inst for phenology-based tillage by MW Graham
+             call get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar,cnveg_state_inst)!adding cnveg_state_inst for phenology-based tillage by MW Graham, but removed on 09/05/18
              do j = 1,5 !changed from j= 1,nlevdecomp to j=1,5 so that it model only tills to the top 26-40 cm of the soil surface, rather than whole soil - MWGraham
                 do fc = 1,num_soilc
                    c = filter_soilc(fc)
@@ -1174,7 +1176,7 @@ contains
                    decomp_k(c,j,i_soil1) = decomp_k(c,j,i_soil1) * clteff_scalar(c,i_soil1)
                    decomp_k(c,j,i_soil2) = decomp_k(c,j,i_soil2) * clteff_scalar(c,i_soil2)
                    decomp_k(c,j,i_soil3) = decomp_k(c,j,i_soil3) * clteff_scalar(c,i_soil3)
-                   write(iulog,*) 'fooooo2',decomp_k(c,j,i_soil1),j    
+                  !write(iulog,*) 'fooooo2',decomp_k(c,j,i_soil1),j    
                 end do
              end do
          end if
@@ -1228,14 +1230,14 @@ contains
     use clm_time_manager, only : get_curr_calday,get_days_per_year
     use pftconMod       , only : npcropmin, ntmp_corn, nirrig_tmp_corn, ntmp_soybean, nirrig_tmp_soybean
     use PatchType       , only : patch
-    use CNVegstateType                  , only : cnveg_state_type
+   
     ! !ARGUMENTS:
     implicit none
     type(bounds_type), intent(in) :: bounds  
+    type(cnveg_state_type)         , intent(inout) :: cnveg_state_inst
     integer          , intent(in) :: num_soilp          ! number of soil pfts in filter
     integer          , intent(in) :: filter_soilp(:)    ! filter for soil pfts
     real(r8):: clteff_scalar(bounds%begc:bounds%endc,ndecomp_pools)  ! plowing modifies decomp_k
-    type(cnveg_state_type)         , intent(inout) :: cnveg_state_inst
     ! !REVISION HISTORY:
     !
     !
@@ -1244,12 +1246,12 @@ contains
     integer :: fp, p, c, g          ! Indices
     integer :: day                  ! julian day
     integer :: idpp                 ! days past planting MWG added
+    real(r8) dayspyr                ! days per year
     !EOP
     !-----------------------------------------------------------------------
 
-    associate(                                                                   & ! Three lines here added by MW Graham to create phenological based tillage operations using idop (date of planing)
-         idop              =>    cnveg_state_inst%idop_patch                     & ! Output: [integer  (:) ]  date of planting
-         )
+    associate(idop              =>    cnveg_state_inst%idop_patch)       ! Three lines here added by MW Graham to create phenological based tillage operations using idop (date of planing)
+                                                                         ! Output: [integer  (:) ]  date of planting
 
     !get info from externals
     day = get_curr_calday()
@@ -1369,6 +1371,7 @@ contains
           end if
        end if
     enddo
+   end associate
   end subroutine get_cultivation_effective_multiplier
 
   !-----------------------------------------------------------------------
