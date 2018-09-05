@@ -16,6 +16,7 @@ module histFileMod
   use clm_varcon     , only : spval, ispval, dzsoi_decomp 
   use clm_varcon     , only : grlnd, nameg, namel, namec, namep, nameCohort
   use decompMod      , only : get_proc_bounds, get_proc_global, bounds_type
+  use GetGlobalValuesMod , only : GetGlobalIndex
   use GridcellType   , only : grc                
   use LandunitType   , only : lun                
   use ColumnType     , only : col                
@@ -3132,6 +3133,11 @@ contains
 
           !call ncd_defvar(varname='pfts1d_ci', xtype=ncd_int, dim1name='pft', &
           !     long_name='1d column index of corresponding pft', ncid=ncid)
+
+! commenting-in for hillslope hydrology (multi-column) code
+          call ncd_defvar(varname='pfts1d_ci', xtype=ncd_int, dim1name='pft', &
+               long_name='1d column index of corresponding pft', ncid=ncid)
+!
           ! ----------------------------------------------------------------
 
           call ncd_defvar(varname='pfts1d_wtgcell', xtype=ncd_double, dim1name=namep, &
@@ -3272,6 +3278,12 @@ contains
        !call ncd_io(varname='pfts1d_gi'       , data=patch%gridcell, dim1name=namep, ncid=ncid, flag='write')
        !call ncd_io(varname='pfts1d_li'       , data=patch%landunit, dim1name=namep, ncid=ncid, flag='write')
        !call ncd_io(varname='pfts1d_ci'       , data=patch%column  , dim1name=namep, ncid=ncid, flag='write')
+! commenting-in for hillslope hydrology 
+       do p=bounds%begp,bounds%endp
+          iparr(p) = GetGlobalIndex(decomp_index=patch%column(p), clmlevel=namec)
+       enddo
+       call ncd_io(varname='pfts1d_ci' , data=iparr , dim1name=namep, ncid=ncid, flag='write')
+
        ! ----------------------------------------------------------------
        call ncd_io(varname='pfts1d_wtgcell'  , data=patch%wtgcell , dim1name=namep, ncid=ncid, flag='write')
        call ncd_io(varname='pfts1d_wtlunit'  , data=patch%wtlunit , dim1name=namep, ncid=ncid, flag='write')
