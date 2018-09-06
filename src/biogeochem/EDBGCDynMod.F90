@@ -13,6 +13,7 @@ module EDBGCDynMod
   use clm_varctl                      , only : use_century_decomp, use_nitrif_denitrif
   use CNVegCarbonStateType	      , only : cnveg_carbonstate_type
   use CNVegCarbonFluxType	      , only : cnveg_carbonflux_type
+  use CNVegstateType                  , only : cnveg_state_type
   use SoilBiogeochemStateType         , only : soilbiogeochem_state_type
   use SoilBiogeochemCarbonStateType   , only : soilbiogeochem_carbonstate_type
   use SoilBiogeochemCarbonFluxType    , only : soilbiogeochem_carbonflux_type
