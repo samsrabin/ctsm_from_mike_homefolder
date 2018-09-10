@@ -93,7 +93,7 @@ contains
     logical                                 , intent(in)    :: doalb             ! true = surface albedo calculation time step
     type(cnveg_carbonflux_type)             , intent(inout) :: cnveg_carbonflux_inst
     type(cnveg_carbonstate_type)            , intent(inout) :: cnveg_carbonstate_inst
-    type(cnveg_state_type)                  , intent(inout) :: cnveg_state_inst
+    type(cnveg_state_type)                  , intent(in)    :: cnveg_state_inst
     type(soilbiogeochem_state_type)         , intent(inout) :: soilbiogeochem_state_inst
     type(soilbiogeochem_carbonflux_type)    , intent(inout) :: soilbiogeochem_carbonflux_inst
     type(soilbiogeochem_carbonstate_type)   , intent(inout) :: soilbiogeochem_carbonstate_inst
