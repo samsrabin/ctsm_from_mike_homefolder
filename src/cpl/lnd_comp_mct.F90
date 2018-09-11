@@ -7,11 +7,12 @@ module lnd_comp_mct
   !  in MCT (Model Coupling Toolkit) format and converting it to use by CLM.
   !
   ! !uses:
-  use shr_kind_mod     , only : r8 => shr_kind_r8
-  use shr_sys_mod      , only : shr_sys_flush
-  use mct_mod          , only : mct_avect, mct_gsmap, mct_gGrid
-  use decompmod        , only : bounds_type, ldecomp
-  use lnd_import_export, only : lnd_import, lnd_export
+  use shr_kind_mod                    , only : r8 => shr_kind_r8
+  use shr_sys_mod                     , only : shr_sys_flush
+  use mct_mod                         , only : mct_avect, mct_gsmap, mct_gGrid
+  use decompmod                       , only : bounds_type, ldecomp
+  use lnd_import_export               , only : lnd_import, lnd_export
+  use CNVegstateType                  , only : cnveg_state_type
   !
   ! !public member functions:
   implicit none
@@ -279,7 +280,7 @@ contains
 
   !====================================================================================
 
-  subroutine lnd_run_mct(EClock, cdata_l, x2l_l, l2x_l)
+  subroutine lnd_run_mct(EClock, cdata_l, x2l_l, l2x_l,cnveg_state_inst)
     !
     ! !DESCRIPTION:
     ! Run clm model
@@ -306,10 +307,11 @@ contains
     use ESMF
     !
     ! !ARGUMENTS:
-    type(ESMF_Clock) , intent(inout) :: EClock    ! Input synchronization clock from driver
-    type(seq_cdata)  , intent(inout) :: cdata_l   ! Input driver data for land model
-    type(mct_aVect)  , intent(inout) :: x2l_l     ! Import state to land model
-    type(mct_aVect)  , intent(inout) :: l2x_l     ! Export state from land model
+    type(ESMF_Clock)                        , intent(inout) :: EClock    ! Input synchronization clock from driver
+    type(seq_cdata)                         , intent(inout) :: cdata_l   ! Input driver data for land model
+    type(mct_aVect)                         , intent(inout) :: x2l_l     ! Import state to land model
+    type(mct_aVect)                         , intent(inout) :: l2x_l     ! Export state from land model
+    type(cnveg_state_type)                  , intent(inout) :: cnveg_state_inst ! added as dummy argument by MW Graham 9/10/18
     !
     ! !LOCAL VARIABLES:
     integer      :: ymd_sync             ! Sync date (YYYYMMDD)
@@ -453,7 +455,7 @@ contains
        call shr_orb_decl( calday     , eccen, mvelpp, lambm0, obliqr, declin  , eccf )
        call shr_orb_decl( nextsw_cday, eccen, mvelpp, lambm0, obliqr, declinp1, eccf )
        call t_stopf ('shr_orb_decl')
-       call clm_drv(doalb, nextsw_cday, declinp1, declin, rstwr, nlend, rdate, rof_prognostic)
+       call clm_drv(doalb, nextsw_cday, declinp1, declin, rstwr, nlend, rdate, rof_prognostic,cnveg_state_inst)
        call t_stopf ('clm_run')
 
        ! Create l2x_l export state - add river runoff input to l2x_l if appropriate

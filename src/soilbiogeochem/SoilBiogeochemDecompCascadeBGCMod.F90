@@ -27,6 +27,7 @@ module SoilBiogeochemDecompCascadeBGCMod
   use ColumnType                         , only : col                
   use GridcellType                       , only : grc
   use SoilBiogeochemStateType            , only : get_spinup_latitude_term
+  use CNVegstateType                     , only : cnveg_state_type
 
   !
   implicit none
@@ -716,7 +717,7 @@ contains
 
   !-----------------------------------------------------------------------
   subroutine decomp_rate_constants_bgc(bounds, num_soilc, filter_soilc, num_soilp, filter_soilp, &
-       canopystate_inst, soilstate_inst, temperature_inst, ch4_inst, soilbiogeochem_carbonflux_inst) 
+       canopystate_inst, soilstate_inst, temperature_inst, ch4_inst, soilbiogeochem_carbonflux_inst,cnveg_state_inst) 
     !
     ! added num_soilp, filter_soilp for cultivation!!!!!!!!!!!!!!!!
     ! !DESCRIPTION:
@@ -739,6 +740,7 @@ contains
     type(temperature_type)               , intent(in)    :: temperature_inst
     type(ch4_type)                       , intent(in)    :: ch4_inst
     type(soilbiogeochem_carbonflux_type) , intent(inout) :: soilbiogeochem_carbonflux_inst
+    type(cnveg_state_type)               , intent(inout) :: cnveg_state_inst
     !
     ! !LOCAL VARIABLES:
     real(r8):: frw(bounds%begc:bounds%endc) ! rooting fraction weight
@@ -1165,7 +1167,7 @@ contains
              ! adding effect of cultivation (e.g., plowing)
              !        on soil C decomposition
              ! -----------------------------------------------------
-             call get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar )
+             call get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar,cnveg_state_inst) !adding cnveg_state_inst for phenology-based tillage by MW Graham
              do j = 1,5 !changed from j= 1,nlevdecomp to j=1,5 so that it model only tills to the top 26-40 cm of the soil surface, rather than whole soil - MWGraham
                 do fc = 1,num_soilc
                    c = filter_soilc(fc)
@@ -1218,19 +1220,20 @@ contains
  end subroutine decomp_rate_constants_bgc
 
 !-----------------------------------------------------------------------
-  subroutine get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar )
+  subroutine get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar,cnveg_state_inst)! added cnveg_state_inst by MW Graham 9/10/18
     ! !DESCRIPTION:
     !
     !  Get the cultivation effective multiplier if prognostic crops are on and
     !  cultivation is turned on. Created by Sam Levis.
     !
     ! !USES:
-    use clm_time_manager, only : get_curr_calday
+    use clm_time_manager, only : get_curr_calday,get_days_per_year
     use pftconMod       , only : npcropmin, ntmp_corn, nirrig_tmp_corn, ntmp_soybean, nirrig_tmp_soybean
     use PatchType       , only : patch
     ! !ARGUMENTS:
     implicit none
     type(bounds_type), intent(in) :: bounds  
+    type(cnveg_state_type)         , intent(inout) :: cnveg_state_inst
     integer          , intent(in) :: num_soilp          ! number of soil pfts in filter
     integer          , intent(in) :: filter_soilp(:)    ! filter for soil pfts
     real(r8):: clteff_scalar(bounds%begc:bounds%endc,ndecomp_pools)  ! plowing modifies decomp_k
@@ -1241,15 +1244,30 @@ contains
     !
     integer :: fp, p, c, g          ! Indices
     integer :: day                  ! julian day
+    integer :: idpp                 ! days past planting MWG added
+    real(r8) dayspyr                ! days per year
     !EOP
     !-----------------------------------------------------------------------
-
+    
+    associate(idop              =>    cnveg_state_inst%idop_patch)       ! Three lines here added by MW Graham to create phenological based tillage operations using idop (date of planing)
+    
+    !get info from externals
     day = get_curr_calday()
+    dayspyr = get_days_per_year()               !Add by MWG for IDPP-based routine
 
     do fp = 1,num_soilp
        p = filter_soilp(fp)
        c = patch%column(p)
        g = patch%gridcell(p)
+ 
+       ! days past planting may determine harves/tillage (MW Graham added)
+
+         if (day >= idop(p)) then
+            idpp = day - idop(p)
+         else
+             idpp = int(dayspyr) + day - idop(p)
+
+         end if
  
        ! -----------------------------------------------------
        ! 3) assigning cultivation practices and mapping to the
@@ -1272,7 +1290,7 @@ contains
 
           if (day < 105) then
              clteff_scalar(c,:) = 1._r8
-          else if (day >= 105 .and. day < 135) then ! April 15
+          else if (day >= 105 .and. day < 105) then ! April 15
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
                 clteff_scalar(c,i_litr2) = 6.67_r8
@@ -1308,9 +1326,9 @@ contains
           ! temp. cereals: P 30 d bef, C 15 d bef, D on day of planting
           ! corn, soy    : P           C           D           & HW-7 30 d aftr
 
-          if (day < 105) then
+          if (day < idop(p)) then
              clteff_scalar(c,:) = 1._r8
-          else if (day >= 105 .and. day < 120) then ! April 15
+          else if (day >= idop(p) .and. day < idop(p)+15) then ! April 15
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
                 clteff_scalar(c,i_litr2) = 3.41_r8
@@ -1318,7 +1336,7 @@ contains
                 clteff_scalar(c,i_soil1) = 3.41_r8
                 clteff_scalar(c,i_soil2) = 3.41_r8
              end if
-          else if (day >= 120 .and. day < 135) then ! April 30
+          else if (day >= idop(p)+20 .and. day < idop(p)+35) then ! April 30
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
                 clteff_scalar(c,i_litr2) = 2.69_r8
@@ -1326,7 +1344,7 @@ contains
                 clteff_scalar(c,i_soil1) = 2.69_r8
                 clteff_scalar(c,i_soil2) = 2.69_r8
              end if
-          else if (day >= 135 .and. day < 165) then ! May 15
+          else if (day >= idop(p)+35 .and. day <idop(p)+65) then ! May 15
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
                 clteff_scalar(c,i_litr2) = 3.41_r8
@@ -1334,7 +1352,7 @@ contains
                 clteff_scalar(c,i_soil1) = 3.41_r8
                 clteff_scalar(c,i_soil2) = 3.41_r8
              end if
-          else if (day >= 165 .and. day < 195) then ! June 14
+          else if (day >= idop(p)+65 .and. day < idop(p)+95) then ! June 14
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) == ntmp_corn      .or. &
                  patch%itype(p) == nirrig_tmp_corn .or. &
@@ -1346,11 +1364,12 @@ contains
                 clteff_scalar(c,i_soil2) = 1.10_r8
                 clteff_scalar(c,i_soil3) = 1.10_r8
              end if
-          else if (day >= 195) then ! July 14
+          else if (day >= idop(p)+95) then ! July 14
              clteff_scalar(c,:) = 1._r8
           end if
        end if
     enddo
+   end associate
   end subroutine get_cultivation_effective_multiplier
 
   !-----------------------------------------------------------------------
