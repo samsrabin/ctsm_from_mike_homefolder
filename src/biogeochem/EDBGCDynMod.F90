@@ -13,7 +13,6 @@ module EDBGCDynMod
   use clm_varctl                      , only : use_century_decomp, use_nitrif_denitrif
   use CNVegCarbonStateType	      , only : cnveg_carbonstate_type
   use CNVegCarbonFluxType	      , only : cnveg_carbonflux_type
-  use CNVegstateType                  , only : cnveg_state_type
   use SoilBiogeochemStateType         , only : soilbiogeochem_state_type
   use SoilBiogeochemCarbonStateType   , only : soilbiogeochem_carbonstate_type
   use SoilBiogeochemCarbonFluxType    , only : soilbiogeochem_carbonflux_type
@@ -50,7 +49,7 @@ contains
        c13_soilbiogeochem_carbonstate_inst, c13_soilbiogeochem_carbonflux_inst,            &
        c14_soilbiogeochem_carbonstate_inst, c14_soilbiogeochem_carbonflux_inst,            &
        atm2lnd_inst, waterstate_inst, waterflux_inst,                                      &
-       canopystate_inst, soilstate_inst, temperature_inst, crop_inst, ch4_inst,cnveg_state_inst)
+       canopystate_inst, soilstate_inst, temperature_inst, crop_inst, ch4_inst)
     !
     ! !DESCRIPTION:
 
@@ -94,7 +93,6 @@ contains
     logical                                 , intent(in)    :: doalb             ! true = surface albedo calculation time step
     type(cnveg_carbonflux_type)             , intent(inout) :: cnveg_carbonflux_inst
     type(cnveg_carbonstate_type)            , intent(inout) :: cnveg_carbonstate_inst
-    type(cnveg_state_type)                  , intent(inout) :: cnveg_state_inst
     type(soilbiogeochem_state_type)         , intent(inout) :: soilbiogeochem_state_inst
     type(soilbiogeochem_carbonflux_type)    , intent(inout) :: soilbiogeochem_carbonflux_inst
     type(soilbiogeochem_carbonstate_type)   , intent(inout) :: soilbiogeochem_carbonstate_inst
@@ -188,7 +186,7 @@ contains
 
     if (use_century_decomp) then
        call decomp_rate_constants_bgc(bounds, num_soilc, filter_soilc, num_soilp, filter_soilp, &
-            canopystate_inst, soilstate_inst, temperature_inst, ch4_inst, soilbiogeochem_carbonflux_inst,cnveg_state_inst)
+            canopystate_inst, soilstate_inst, temperature_inst, ch4_inst, soilbiogeochem_carbonflux_inst)
     else
        call decomp_rate_constants_cn(bounds, num_soilc, filter_soilc, &
             canopystate_inst, soilstate_inst, temperature_inst, ch4_inst, soilbiogeochem_carbonflux_inst)
