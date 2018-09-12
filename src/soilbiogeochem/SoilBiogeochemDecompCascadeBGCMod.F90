@@ -740,7 +740,7 @@ contains
     type(temperature_type)               , intent(in)    :: temperature_inst
     type(ch4_type)                       , intent(in)    :: ch4_inst
     type(soilbiogeochem_carbonflux_type) , intent(inout) :: soilbiogeochem_carbonflux_inst
-    type(cnveg_state_type)               , intent(inout) :: cnveg_state_inst
+    type(cnveg_state_type), optional     , intent(in)    :: cnveg_state_inst
     !
     ! !LOCAL VARIABLES:
     real(r8):: frw(bounds%begc:bounds%endc) ! rooting fraction weight
@@ -1167,7 +1167,11 @@ contains
              ! adding effect of cultivation (e.g., plowing)
              !        on soil C decomposition
              ! -----------------------------------------------------
+            if (present(cnveg_state_inst)) then
              call get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar,cnveg_state_inst) !adding cnveg_state_inst for phenology-based tillage by MW Graham
+            else
+             call get_cultivation_effective_multiplier( bounds, filter_soilp, num_soilp, clteff_scalar)
+            end if 
              do j = 1,5 !changed from j= 1,nlevdecomp to j=1,5 so that it model only tills to the top 26-40 cm of the soil surface, rather than whole soil - MWGraham
                 do fc = 1,num_soilc
                    c = filter_soilc(fc)
