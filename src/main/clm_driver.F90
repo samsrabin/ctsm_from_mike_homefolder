@@ -80,7 +80,6 @@ module clm_driver
   use clm_instMod
   use clm_initializeMod      , only : soil_water_retention_curve
   use EDBGCDynMod            , only : EDBGCDyn, EDBGCDynSummary
-  use CNVegstateType         , only : cnveg_state_type
   !
   ! !PUBLIC TYPES:
   implicit none
@@ -100,7 +99,7 @@ module clm_driver
 contains
 
   !-----------------------------------------------------------------------
-  subroutine clm_drv(doalb, nextsw_cday, declinp1, declin, rstwr, nlend, rdate, rof_prognostic,cnveg_state_inst)
+  subroutine clm_drv(doalb, nextsw_cday, declinp1, declin, rstwr, nlend, rdate, rof_prognostic)
     !
     ! !DESCRIPTION:
     !
@@ -119,7 +118,6 @@ contains
     logical                                 ,intent(in)    :: rstwr       ! true => write restart file this step
     logical                                 ,intent(in)    :: nlend       ! true => end of run on this step
     character(len=*)                        ,intent(in)    :: rdate       ! restart file time stamp for name
-    type(cnveg_state_type)                  ,intent(out)   :: cnveg_state_inst ! added as dummy argument by MW Graham 9/10/18
 
     ! Whether we're running with a prognostic ROF component. This shouldn't change from
     ! timestep to timestep, but we pass it into the driver loop because it isn't available
@@ -907,8 +905,7 @@ contains
                c13_soilbiogeochem_carbonstate_inst, c13_soilbiogeochem_carbonflux_inst,            &
                c14_soilbiogeochem_carbonstate_inst, c14_soilbiogeochem_carbonflux_inst,            &
                atm2lnd_inst, waterstate_inst, waterflux_inst,                                      &
-               canopystate_inst, soilstate_inst, temperature_inst, crop_inst, ch4_inst,            & 
-               cnveg_state_inst)                                                                      !cnveg_state_inst added as dummy by MW Graham on 9/10/18
+               canopystate_inst, soilstate_inst, temperature_inst, crop_inst, ch4_inst)            & 
 
           call EDBGCDynSummary(bounds_clump,                                             &
                 filter(nc)%num_soilc, filter(nc)%soilc,                                  &
