@@ -111,13 +111,13 @@ contains
     !
     ! !ARGUMENTS:
     implicit none
-    logical                                 ,intent(in)    :: doalb       ! true if time for surface albedo calc
-    real(r8)                                ,intent(in)    :: nextsw_cday ! calendar day for nstep+1
-    real(r8)                                ,intent(in)    :: declinp1    ! declination angle for next time step
-    real(r8)                                ,intent(in)    :: declin      ! declination angle for current time step
-    logical                                 ,intent(in)    :: rstwr       ! true => write restart file this step
-    logical                                 ,intent(in)    :: nlend       ! true => end of run on this step
-    character(len=*)                        ,intent(in)    :: rdate       ! restart file time stamp for name
+    logical ,        intent(in) :: doalb       ! true if time for surface albedo calc
+    real(r8),        intent(in) :: nextsw_cday ! calendar day for nstep+1
+    real(r8),        intent(in) :: declinp1    ! declination angle for next time step
+    real(r8),        intent(in) :: declin      ! declination angle for current time step
+    logical,         intent(in) :: rstwr       ! true => write restart file this step
+    logical,         intent(in) :: nlend       ! true => end of run on this step
+    character(len=*),intent(in) :: rdate       ! restart file time stamp for name
 
     ! Whether we're running with a prognostic ROF component. This shouldn't change from
     ! timestep to timestep, but we pass it into the driver loop because it isn't available
@@ -905,7 +905,7 @@ contains
                c13_soilbiogeochem_carbonstate_inst, c13_soilbiogeochem_carbonflux_inst,            &
                c14_soilbiogeochem_carbonstate_inst, c14_soilbiogeochem_carbonflux_inst,            &
                atm2lnd_inst, waterstate_inst, waterflux_inst,                                      &
-               canopystate_inst, soilstate_inst, temperature_inst, crop_inst, ch4_inst)            & 
+               canopystate_inst, soilstate_inst, temperature_inst, crop_inst, ch4_inst)
 
           call EDBGCDynSummary(bounds_clump,                                             &
                 filter(nc)%num_soilc, filter(nc)%soilc,                                  &

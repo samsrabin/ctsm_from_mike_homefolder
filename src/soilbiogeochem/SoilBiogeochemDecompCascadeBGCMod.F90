@@ -1237,7 +1237,7 @@ contains
     ! !ARGUMENTS:
     implicit none
     type(bounds_type), intent(in) :: bounds  
-    type(cnveg_state_type)         , intent(inout) :: cnveg_state_inst
+    type(cnveg_state_type), optional     , intent(in) :: cnveg_state_inst
     integer          , intent(in) :: num_soilp          ! number of soil pfts in filter
     integer          , intent(in) :: filter_soilp(:)    ! filter for soil pfts
     real(r8):: clteff_scalar(bounds%begc:bounds%endc,ndecomp_pools)  ! plowing modifies decomp_k
@@ -1254,7 +1254,11 @@ contains
     !-----------------------------------------------------------------------
     
     associate(idop              =>    cnveg_state_inst%idop_patch)       ! Three lines here added by MW Graham to create phenological based tillage operations using idop (date of planing)
-    
+
+    if (.not. present(cnveg_state_inst)) then
+      call endrun(msg="cnveg_state_inst not passed into get_cultivation_effective_multiplier() as expected"//errmsg(__FILE__, __LINE__))
+    end if  
+  
     !get info from externals
     day = get_curr_calday()
     dayspyr = get_days_per_year()               !Add by MWG for IDPP-based routine
