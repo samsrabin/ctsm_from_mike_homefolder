@@ -99,7 +99,7 @@ module SoilBiogeochemDecompCascadeBGCMod
   character(len=*), parameter, private :: sourcefile = &
        __FILE__
 
-  logical :: cultivate = .false. ! If crop is on -- should soil be cultivated? !!!!!!!!!!!!!! added for cultivation code
+  logical :: cultivate = .true. ! If crop is on -- should soil be cultivated? !!!!!!!!!!!!!! added for cultivation code
   real(r8), allocatable :: developed(:) ! If grid cell is developed or not !!!!!!!!!!!!!! added for cultivation code
 
   !-----------------------------------------------------------------------
@@ -1350,7 +1350,7 @@ contains
              if (patch%itype(p) >= npcropmin) then
                 clteff_scalar(c,i_litr2) = 3.50_r8
                 clteff_scalar(c,i_litr3) = 3.50_r8
-                clteff_scalar(c,i_soil1) = 3.50_r8
+                clteff_scalar(c,i_soil1) = 3.00_r8
                 clteff_scalar(c,i_soil2) = 3.50_r8
                 clteff_scalar(c,i_soil3) = 1.00_r8
              end if
