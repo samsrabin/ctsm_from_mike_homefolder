@@ -1310,41 +1310,44 @@ contains
 
           if (day < 105) then
              clteff_scalar(c,:) = 1._r8
-          else if (day >= 105 .and. day < 120) then ! April 15
+          else if (day >= 105 .and. day < 135) then ! April 15
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
-                clteff_scalar(c,i_litr2) = 3.41_r8
-                clteff_scalar(c,i_litr3) = 3.41_r8
-                clteff_scalar(c,i_soil1) = 3.41_r8
-                clteff_scalar(c,i_soil2) = 3.41_r8
+                clteff_scalar(c,i_litr2) = 4.80_r8
+                clteff_scalar(c,i_litr3) = 4.80_r8
+                clteff_scalar(c,i_soil1) = 4.80_r8
+                clteff_scalar(c,i_soil2) = 4.80_r8
+                clteff_scalar(c,i_soil3) = 4.80_r8
              end if
-          else if (day >= 120 .and. day < 135) then ! April 30
+          else if (day >= 135 .and. day < 165) then ! April 30
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
-                clteff_scalar(c,i_litr2) = 2.69_r8
-                clteff_scalar(c,i_litr3) = 2.69_r8
-                clteff_scalar(c,i_soil1) = 2.69_r8
-                clteff_scalar(c,i_soil2) = 2.69_r8
+                clteff_scalar(c,i_litr2) = 3.50_r8
+                clteff_scalar(c,i_litr3) = 3.50_r8
+                clteff_scalar(c,i_soil1) = 3.50_r8
+                clteff_scalar(c,i_soil2) = 3.50_r8
+                clteff_scalar(c,i_soil3) = 3.50_r8  
              end if
-          else if (day >= 135 .and. day < 165) then ! May 15
+          else if (day >= 165 .and. day < 195) then ! May 15
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) >= npcropmin) then
-                clteff_scalar(c,i_litr2) = 3.41_r8
-                clteff_scalar(c,i_litr3) = 3.41_r8
-                clteff_scalar(c,i_soil1) = 3.41_r8
-                clteff_scalar(c,i_soil2) = 3.41_r8
+                clteff_scalar(c,i_litr2) = 2.55_r8
+                clteff_scalar(c,i_litr3) = 2.55_r8
+                clteff_scalar(c,i_soil1) = 2.55_r8
+                clteff_scalar(c,i_soil2) = 2.55_r8
+                clteff_scalar(c,i_soil3) = 2.55_r8
              end if
-          else if (day >= 165 .and. day < 195) then ! June 14
+          else if (day >= 195 .and. day < 200) then ! June 14
              clteff_scalar(c,:) = 1._r8
              if (patch%itype(p) == ntmp_corn      .or. &
                  patch%itype(p) == nirrig_tmp_corn .or. &
                  patch%itype(p) == ntmp_soybean   .or. &
                  patch%itype(p) == nirrig_tmp_soybean      ) then
-                clteff_scalar(c,i_litr2) = 1.10_r8
-                clteff_scalar(c,i_litr3) = 1.10_r8
-                clteff_scalar(c,i_soil1) = 1.10_r8
-                clteff_scalar(c,i_soil2) = 1.10_r8
-                clteff_scalar(c,i_soil3) = 1.10_r8
+                clteff_scalar(c,i_litr2) = 1.00_r8
+                clteff_scalar(c,i_litr3) = 1.00_r8
+                clteff_scalar(c,i_soil1) = 1.00_r8
+                clteff_scalar(c,i_soil2) = 1.00_r8
+                clteff_scalar(c,i_soil3) = 1.00_r8
              end if
           else if (day >= 195) then ! July 14
              clteff_scalar(c,:) = 1._r8
