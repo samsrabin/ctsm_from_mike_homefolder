@@ -1375,7 +1375,7 @@ contains
                  clteff_scalar(c,i_soil2) = 1.00_r8
                  clteff_scalar(c,i_soil3) = 1.00_r8
              end if
-          else if (day >= idop(p)+95) then ! July 14
+          else if (day >= idop(p)+80) then ! July 14
              clteff_scalar(c,:) = 1._r8
           end if
        end if
