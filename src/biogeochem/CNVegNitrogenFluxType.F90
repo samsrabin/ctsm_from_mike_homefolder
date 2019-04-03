@@ -950,7 +950,7 @@ contains
             ptr_patch=this%fert_patch)
     end if
 
-    if (use_crop) then
+    if (use_crop .and. .not. use_fun) then
        this%soyfixn_patch(begp:endp) = spval
        call hist_addfld1d (fname='SOYFIXN', units='gN/m^2/s', &
             avgflag='A', long_name='soybean fixation', &
@@ -1402,11 +1402,6 @@ contains
          long_name='', units='', &
          interpinic_flag='interp', readvar=readvar, data=this%avail_retransn_patch) 
 
-    call restartvar(ncid=ncid, flag=flag, varname='plant_nalloc', xtype=ncd_double,  &
-         dim1name='pft', &
-         long_name='', units='', &
-         interpinic_flag='interp', readvar=readvar, data=this%plant_nalloc_patch) 
-
      if ( use_fun ) then
 !       set_missing_vals_to_constant for BACKWARDS_COMPATIBILITY(wrw, 2018-06-28) re. issue #426
 !       special land units previously set to spval, not 0
@@ -1526,12 +1521,6 @@ contains
              long_name='', units='', &
              interpinic_flag='interp', readvar=readvar, data=this%Nuptake_patch)
         call set_missing_vals_to_constant(this%Nuptake_patch, 0._r8)
-
-        call restartvar(ncid=ncid, flag=flag, varname='sminn_to_plant_fun', xtype=ncd_double,            &
-             dim1name='pft', &
-             long_name='Total soil N uptake of FUN', units='gN/m2/s', &
-             interpinic_flag='interp', readvar=readvar, data=this%sminn_to_plant_fun_patch)
-        call set_missing_vals_to_constant(this%sminn_to_plant_fun_patch, 0._r8)
      end if
 ! End BACKWARDS_COMPATIBILITY(wrw, 2018-06-28) re. issue #426
 

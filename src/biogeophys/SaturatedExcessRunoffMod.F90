@@ -12,12 +12,14 @@ module SaturatedExcessRunoffMod
   use shr_log_mod  , only : errMsg => shr_log_errMsg
   use decompMod    , only : bounds_type
   use abortutils   , only : endrun
-  use clm_varctl   , only : iulog, use_vichydro
+  use clm_varctl   , only : iulog, use_vichydro, crop_fsat_equals_zero
   use clm_varcon   , only : spval
+  use LandunitType , only : landunit_type
+  use landunit_varcon  , only : istcrop
   use ColumnType   , only : column_type
   use SoilHydrologyType, only : soilhydrology_type
   use SoilStateType, only : soilstate_type
-  use WaterfluxType, only : waterflux_type
+  use WaterFluxBulkType, only : waterfluxbulk_type
 
   implicit none
   save
@@ -29,7 +31,6 @@ module SaturatedExcessRunoffMod
      private
      ! Public data members
      ! Note: these should be treated as read-only by other modules
-     real(r8), pointer, public :: qflx_sat_excess_surf_col(:) ! surface runoff due to saturated surface (mm H2O /s)
      real(r8), pointer, public :: fsat_col(:) ! fractional area with water table at surface
 
      ! Private data members
@@ -106,7 +107,6 @@ contains
 
     begc = bounds%begc; endc= bounds%endc
 
-    allocate(this%qflx_sat_excess_surf_col(begc:endc)) ; this%qflx_sat_excess_surf_col(:) = nan
     allocate(this%fsat_col(begc:endc))                 ; this%fsat_col(:)                 = nan
     allocate(this%fcov_col(begc:endc))                 ; this%fcov_col(:)                 = nan   
 
@@ -175,23 +175,26 @@ contains
 
   !-----------------------------------------------------------------------
   subroutine SaturatedExcessRunoff (this, bounds, num_hydrologyc, filter_hydrologyc, &
-       col, soilhydrology_inst, soilstate_inst, waterflux_inst)
+       lun, col, soilhydrology_inst, soilstate_inst, waterfluxbulk_inst)
     !
     ! !DESCRIPTION:
     ! Calculate surface runoff due to saturated surface
+    !
+    ! Sets this%fsat_col and waterfluxbulk_inst%qflx_sat_excess_surf_col
     !
     ! !ARGUMENTS:
     class(saturated_excess_runoff_type), intent(inout) :: this
     type(bounds_type)        , intent(in)    :: bounds               
     integer                  , intent(in)    :: num_hydrologyc       ! number of column soil points in column filter
     integer                  , intent(in)    :: filter_hydrologyc(:) ! column filter for soil points
+    type(landunit_type)      , intent(in)    :: lun
     type(column_type)        , intent(in)    :: col
     type(soilhydrology_type) , intent(inout) :: soilhydrology_inst
     type(soilstate_type)     , intent(in)    :: soilstate_inst
-    type(waterflux_type)     , intent(inout) :: waterflux_inst
+    type(waterfluxbulk_type)     , intent(inout) :: waterfluxbulk_inst
     !
     ! !LOCAL VARIABLES:
-    integer  :: fc, c
+    integer  :: fc, c, l
 
     character(len=*), parameter :: subname = 'SaturatedExcessRunoff'
     !-----------------------------------------------------------------------
@@ -199,12 +202,12 @@ contains
     associate(                                                        & 
          fcov                   =>    this%fcov_col                          , & ! Output: [real(r8) (:)   ]  fractional impermeable area
          fsat                   =>    this%fsat_col                          , & ! Output: [real(r8) (:)   ]  fractional area with water table at surface
-         qflx_sat_excess_surf   =>    this%qflx_sat_excess_surf_col          , & ! Output: [real(r8) (:)   ]  surface runoff due to saturated surface (mm H2O /s)
 
          snl                    =>    col%snl                                , & ! Input:  [integer  (:)   ]  minus number of snow layers
 
-         qflx_floodc            =>    waterflux_inst%qflx_floodc_col         , & ! Input:  [real(r8) (:)   ]  column flux of flood water from RTM
-         qflx_rain_plus_snomelt => waterflux_inst%qflx_rain_plus_snomelt_col , & ! Input: [real(r8) (:)   ] rain plus snow melt falling on the soil (mm/s)
+         qflx_sat_excess_surf   =>    waterfluxbulk_inst%qflx_sat_excess_surf_col, & ! Output: [real(r8) (:)   ]  surface runoff due to saturated surface (mm H2O /s)
+         qflx_floodc            =>    waterfluxbulk_inst%qflx_floodc_col         , & ! Input:  [real(r8) (:)   ]  column flux of flood water from RTM
+         qflx_rain_plus_snomelt => waterfluxbulk_inst%qflx_rain_plus_snomelt_col , & ! Input: [real(r8) (:)   ] rain plus snow melt falling on the soil (mm/s)
 
          origflag               =>    soilhydrology_inst%origflag            , & ! Input:  logical
          fracice                =>    soilhydrology_inst%fracice_col           & ! Input:  [real(r8) (:,:) ]  fractional impermeability (-)
@@ -227,6 +230,17 @@ contains
        write(iulog,*) subname//' ERROR: Unrecognized fsat_method: ', this%fsat_method
        call endrun(subname//' ERROR: Unrecognized fsat_method')
     end select
+
+    ! ------------------------------------------------------------------------
+    ! Set fsat to zero for crop columns
+    ! ------------------------------------------------------------------------
+    if (crop_fsat_equals_zero) then
+       do fc = 1, num_hydrologyc
+          c = filter_hydrologyc(fc)
+          l = col%landunit(c)
+          if(lun%itype(l) == istcrop) fsat(c) = 0._r8
+       end do
+    endif
 
     ! ------------------------------------------------------------------------
     ! Compute qflx_sat_excess_surf
