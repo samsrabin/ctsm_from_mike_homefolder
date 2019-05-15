@@ -246,8 +246,8 @@ module CNVegCarbonFluxType
      real(r8), pointer :: harvest_c_to_cwdc_col                     (:,:)   ! C fluxes associated with harvest to CWD pool (gC/m3/s)
      real(r8), pointer :: grainc_to_cropprodc_patch                 (:)     ! grain C to crop product pool (gC/m2/s)
      real(r8), pointer :: grainc_to_cropprodc_col                   (:)     ! grain C to crop product pool (gC/m2/s)
-     real(r8), pointer :: livestemc_to_cropprodc_patch              (:)     ! livestem C to crop product pool (gC/m2/s)
-     real(r8), pointer :: livestemc_to_cropprodc_col                (:)     ! livestem C to crop product pool (gC/m2/s)
+    ! real(r8), pointer :: livestemc_to_cropprodc_patch              (:)     ! livestem C to crop product pool (gC/m2/s)
+    ! real(r8), pointer :: livestemc_to_cropprodc_col                (:)     ! livestem C to crop product pool (gC/m2/s)
      real(r8), pointer :: leafc_to_cropprodc_patch                  (:)     ! leaf C to crop product pool (gC/m2/s)
      real(r8), pointer :: leafc_to_cropprodc_col                    (:)     ! leaf C to crop product pool (gC/m2/s)
 
@@ -663,11 +663,11 @@ contains
     allocate(this%grainc_to_cropprodc_col(begc:endc))
     this%grainc_to_cropprodc_col(:) = nan
 
-    allocate(this%livestemc_to_cropprodc_patch(begp:endp)) !added livestem C prod
-    this%livestemc_to_cropprodc_patch(:) = nan
+   ! allocate(this%livestemc_to_cropprodc_patch(begp:endp)) !added livestem C prod
+   ! this%livestemc_to_cropprodc_patch(:) = nan
 
-    allocate(this%livestemc_to_cropprodc_col(begc:endc)) !added livestem C prod
-    this%livestemc_to_cropprodc_col(:) = nan
+   ! allocate(this%livestemc_to_cropprodc_col(begc:endc)) !added livestem C prod
+   ! this%livestemc_to_cropprodc_col(:) = nan
 
     allocate(this%leafc_to_cropprodc_patch(begp:endp)) !added leaf C prod
     this%leafc_to_cropprodc_patch(:) = nan
@@ -3829,7 +3829,7 @@ contains
 
        this%crop_seedc_to_leaf_patch(i)                  = value_patch
        this%grainc_to_cropprodc_patch(i)                 = value_patch
-       this%livestemc_to_cropprodc_patch(i)              = value_patch !added livestem C
+     !  this%livestemc_to_cropprodc_patch(i)              = value_patch !added livestem C
        this%leafc_to_cropprodc_patch(i)              = value_patch !added leaf C
     end do
 
@@ -3896,7 +3896,7 @@ contains
        i = filter_column(fi)
 
        this%grainc_to_cropprodc_col(i)       = value_column
-       this%livestemc_to_cropprodc_col(i)    = value_column !livestem C added
+      ! this%livestemc_to_cropprodc_col(i)    = value_column !livestem C added
        this%leafc_to_cropprodc_col(i)    = value_column !leaf C added
        this%cwdc_hr_col(i)                   = value_column
        this%cwdc_loss_col(i)                 = value_column

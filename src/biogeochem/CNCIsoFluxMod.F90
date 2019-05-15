@@ -467,13 +467,13 @@ contains
                iso_cnveg_cf%grain_mr_patch(p) = iso_cnveg_cf%grain_xsmr_patch(p) + iso_cnveg_cf%grain_curmr_patch(p)
             end do
          endif
-         if (use_grainproduct) then !added livestem if statement to create livestem_mr_patch if use_livestemproduct MWGraham
-            do fp = 1,num_soilp
-               p = filter_soilp(fp)
-               iso_cnveg_cf%livestemc_to_cropprodc_patch(p) = iso_cnveg_cf%livestemc_to_litter_patch(p)
-               iso_cnveg_cf%livestem_mr_patch(p) = iso_cnveg_cf%livestem_xsmr_patch(p) + iso_cnveg_cf%livestem_curmr_patch(p)
-            end do
-         end if  
+        ! if (use_grainproduct) then !added livestem if statement to create livestem_mr_patch if use_livestemproduct MWGraham
+         !   do fp = 1,num_soilp
+          !     p = filter_soilp(fp)
+           !    iso_cnveg_cf%livestemc_to_cropprodc_patch(p) = iso_cnveg_cf%livestemc_to_litter_patch(p)
+            !   iso_cnveg_cf%livestem_mr_patch(p) = iso_cnveg_cf%livestem_xsmr_patch(p) + iso_cnveg_cf%livestem_curmr_patch(p)
+           ! end do
+        ! end if  
          if (use_grainproduct) then !added leaf if statement to create leaf_mr_patch if use_livestemproduct MWGraham
             do fp = 1,num_soilp
                p = filter_soilp(fp)
