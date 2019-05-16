@@ -2991,7 +2991,7 @@ contains
             do fc = 1,num_soilc
                c = filter_soilc(fc)
 
-               if (( pi <=  col%npatches(c)) then
+               if (( pi <=  col%npatches(c) .and. (.not. use_grainproduct)) then
                   p = col%patchi(c) + pi - 1
                   if (patch%active(p)) then
 
@@ -3084,8 +3084,6 @@ contains
                               + grainn_to_food(p) * lf_flig(ivt(p)) * wtcol(p) * leaf_prof(p,j)
                         end if
 
-
-                     end if
                   end if
                end if
 
